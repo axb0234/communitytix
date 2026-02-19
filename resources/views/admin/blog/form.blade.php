@@ -21,7 +21,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Content *</label>
-                <textarea name="body_html" class="form-control @error('body_html') is-invalid @enderror" rows="12" required>{{ old('body_html', $post->body_html ?? '') }}</textarea>
+                <textarea name="body_html" class="wysiwyg-editor @error('body_html') is-invalid @enderror" required>{{ old('body_html', $post->body_html ?? '') }}</textarea>
                 @error('body_html')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
@@ -49,4 +49,5 @@
         </form>
     </div>
 </div>
+@section('wysiwyg', true)
 @endsection

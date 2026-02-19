@@ -70,8 +70,8 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Full Description (HTML)</label>
-                <textarea name="body_html" class="form-control" rows="8">{{ old('body_html', $event->body_html ?? '') }}</textarea>
+                <label class="form-label">Full Description</label>
+                <textarea name="body_html" class="wysiwyg-editor">{{ old('body_html', $event->body_html ?? '') }}</textarea>
             </div>
 
             <div class="d-flex gap-2">
@@ -81,6 +81,8 @@
         </form>
     </div>
 </div>
+
+@section('wysiwyg', true)
 
 @if($event)
 {{-- Ticket Types --}}

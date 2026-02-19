@@ -83,6 +83,13 @@
         }
     </style>
     @stack('styles')
+    @hasSection('wysiwyg')
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.css" rel="stylesheet">
+    <style>
+        .note-editor.note-frame { border: 1px solid #dee2e6; border-radius: 0.375rem; }
+        .note-editor .note-toolbar { background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 0.375rem 0.375rem 0 0; }
+    </style>
+    @endif
 </head>
 <body>
     {{-- Sidebar --}}
@@ -175,6 +182,34 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @hasSection('wysiwyg')
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-bs5.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.wysiwyg-editor').forEach(function(el) {
+                $(el).summernote({
+                    height: 250,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'hr']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ],
+                    styleTags: ['p', 'h2', 'h3', 'h4', 'h5', 'h6'],
+                    callbacks: {
+                        onImageUpload: function(files) {
+                            alert('Please use the image upload fields or host images externally. Inline image paste is not supported.');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    @endif
     @stack('scripts')
 </body>
 </html>

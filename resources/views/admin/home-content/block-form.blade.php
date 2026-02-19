@@ -13,8 +13,8 @@
                 <input type="text" name="title" class="form-control" required value="{{ old('title', $block->title ?? '') }}">
             </div>
             <div class="mb-3">
-                <label class="form-label">Content (HTML) *</label>
-                <textarea name="body_html" class="form-control" rows="6" required>{{ old('body_html', $block->body_html ?? '') }}</textarea>
+                <label class="form-label">Content *</label>
+                <textarea name="body_html" class="wysiwyg-editor" required>{{ old('body_html', $block->body_html ?? '') }}</textarea>
             </div>
             <div class="mb-3">
                 <label class="form-label">Icon (Font Awesome class, e.g. "fas fa-heart")</label>
@@ -38,4 +38,5 @@
         </form>
     </div>
 </div>
+@section('wysiwyg', true)
 @endsection
