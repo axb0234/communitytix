@@ -8,7 +8,7 @@ CommunityTix is a low-cost, open-source web platform for community organisations
 - a lightweight Members database
 - an admin control panel for governing users
 
-The first tenant is **Moitree – Bengali Association of Bristol**, but the platform is designed to support multiple organisations via **subdomain tenancy**:
+The platform is designed to support multiple organisations via **subdomain tenancy**:
 `{tenantSlug}.communitytix.org`
 
 ---
