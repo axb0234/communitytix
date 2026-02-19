@@ -1,0 +1,4 @@
+#ignore the private key
+communitytix_key.pem
+#ignore the env agent
+.env.agent
