@@ -1,0 +1,187 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
+use App\Models\Event;
+use App\Models\EventImage;
+use App\Models\TicketType;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class EventController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Event::orderByDesc('start_at');
+
+        if ($request->filled('search')) {
+            $query->where('title', 'ilike', '%' . $request->search . '%');
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('type')) {
+            $query->where('event_type', $request->type);
+        }
+
+        $events = $query->paginate(15)->withQueryString();
+        return view('admin.events.index', compact('events'));
+    }
+
+    public function create()
+    {
+        return view('admin.events.form', ['event' => null]);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'start_at' => 'required|date',
+            'end_at' => 'nullable|date|after:start_at',
+            'location' => 'nullable|string|max:255',
+            'location_address' => 'nullable|string|max:500',
+            'event_type' => 'required|in:FREE,TICKETED',
+            'status' => 'required|in:draft,published',
+            'body_html' => 'nullable|string',
+            'short_description' => 'nullable|string|max:500',
+            'rsvp_capacity' => 'nullable|integer|min:1',
+            'flyer_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ]);
+
+        $data['slug'] = Str::slug($data['title']);
+        if ($data['status'] === 'published') {
+            $data['published_at'] = now();
+        }
+
+        if ($request->hasFile('flyer_file')) {
+            $data['flyer_path'] = $this->storeUpload($request->file('flyer_file'), 'events/flyers');
+        }
+        unset($data['flyer_file']);
+
+        $baseSlug = $data['slug'];
+        $counter = 1;
+        while (Event::withoutGlobalScopes()->where('tenant_id', app('current_tenant')->id)->where('slug', $data['slug'])->exists()) {
+            $data['slug'] = $baseSlug . '-' . $counter++;
+        }
+
+        $event = Event::create($data);
+        AuditLog::log('event_created', 'Event', $event->id);
+
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Event created. Now add ticket types or images.');
+    }
+
+    public function edit(Event $event)
+    {
+        $event->load('ticketTypes', 'images');
+        return view('admin.events.form', compact('event'));
+    }
+
+    public function update(Request $request, Event $event)
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'start_at' => 'required|date',
+            'end_at' => 'nullable|date|after:start_at',
+            'location' => 'nullable|string|max:255',
+            'location_address' => 'nullable|string|max:500',
+            'event_type' => 'required|in:FREE,TICKETED',
+            'status' => 'required|in:draft,published',
+            'body_html' => 'nullable|string',
+            'short_description' => 'nullable|string|max:500',
+            'rsvp_capacity' => 'nullable|integer|min:1',
+            'flyer_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ]);
+
+        if ($data['status'] === 'published' && !$event->published_at) {
+            $data['published_at'] = now();
+            AuditLog::log('event_published', 'Event', $event->id);
+        }
+
+        if ($request->hasFile('flyer_file')) {
+            $data['flyer_path'] = $this->storeUpload($request->file('flyer_file'), 'events/flyers');
+        }
+        unset($data['flyer_file']);
+
+        $event->update($data);
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Event updated.');
+    }
+
+    public function destroy(Event $event)
+    {
+        $event->delete();
+        return redirect()->route('admin.events.index')->with('success', 'Event deleted.');
+    }
+
+    // Ticket Types
+    public function storeTicketType(Request $request, Event $event)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'capacity' => 'nullable|integer|min:1',
+            'sort_order' => 'integer',
+        ]);
+        $data['event_id'] = $event->id;
+
+        TicketType::create($data);
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Ticket type added.');
+    }
+
+    public function updateTicketType(Request $request, Event $event, TicketType $ticketType)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'capacity' => 'nullable|integer|min:1',
+            'active' => 'boolean',
+        ]);
+        $data['active'] = $request->boolean('active', true);
+
+        $ticketType->update($data);
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Ticket type updated.');
+    }
+
+    public function destroyTicketType(Event $event, TicketType $ticketType)
+    {
+        $ticketType->delete();
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Ticket type deleted.');
+    }
+
+    // Event Images
+    public function storeImage(Request $request, Event $event)
+    {
+        $request->validate([
+            'image' => 'required|image|max:5120',
+            'caption' => 'nullable|string|max:255',
+        ]);
+
+        $path = $this->storeUpload($request->file('image'), 'events/images');
+
+        EventImage::create([
+            'event_id' => $event->id,
+            'image_path' => $path,
+            'caption' => $request->caption,
+            'sort_order' => $event->images()->count(),
+        ]);
+
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Image added.');
+    }
+
+    public function destroyImage(Event $event, EventImage $image)
+    {
+        $image->delete();
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Image deleted.');
+    }
+
+    private function storeUpload($file, string $folder): string
+    {
+        $tenant = app('current_tenant');
+        $name = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        $path = "uploads/{$tenant->slug}/{$folder}";
+        $file->move(storage_path("app/public/{$path}"), $name);
+        return "{$path}/{$name}";
+    }
+}

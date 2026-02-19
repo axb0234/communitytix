@@ -1,4 +1,25 @@
-#ignore the private key
+# Laravel
+/vendor
+/node_modules
+/.env
+/.env.backup
+/.env.production
+/storage/*.key
+/storage/app/public/uploads
+/public/hot
+/public/storage
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+database/database.sqlite
+
+# Project specific
 communitytix_key.pem
-#ignore the env agent
 .env.agent
+communitytix_v1_0_3_infra_runbook_monolith_vm.md
+communitytix_v1_0_4_developer_spec_monolith_vm.md
