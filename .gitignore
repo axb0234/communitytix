@@ -23,3 +23,7 @@ communitytix_key.pem
 .env.agent
 communitytix_v1_0_3_infra_runbook_monolith_vm.md
 communitytix_v1_0_4_developer_spec_monolith_vm.md
+
+# Test artifacts
+.playwright-mcp/
+homepage-final.png
