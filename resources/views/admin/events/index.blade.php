@@ -2,9 +2,9 @@
 @section('page-title', 'Events')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <form class="d-flex gap-2" method="GET">
-        <input type="text" name="search" class="form-control form-control-sm" placeholder="Search..." value="{{ request('search') }}">
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <form class="d-flex flex-wrap gap-2 filter-bar" method="GET">
+        <input type="text" name="search" class="form-control form-control-sm" style="min-width:120px;max-width:200px;" placeholder="Search..." value="{{ request('search') }}">
         <select name="status" class="form-select form-select-sm" style="width:120px;" onchange="this.form.submit()">
             <option value="">All Status</option>
             <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Draft</option>
@@ -17,11 +17,11 @@
         </select>
         <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-search"></i></button>
     </form>
-    <a href="{{ route('admin.events.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i>New Event</a>
+    <a href="{{ route('admin.events.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>New Event</a>
 </div>
 
 <div class="card">
-    <div class="card-body p-0">
+    <div class="card-body p-0 table-responsive-wrap">
         <table class="table table-hover mb-0">
             <thead><tr><th>Event</th><th>Date</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>

@@ -12,7 +12,7 @@
 </form>
 
 <div class="card">
-    <div class="card-body p-0">
+    <div class="card-body p-0 table-responsive-wrap">
         <table class="table table-hover mb-0">
             <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Guests</th><th>Event</th><th>Date</th></tr></thead>
             <tbody>

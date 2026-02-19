@@ -5,7 +5,7 @@
 <div class="row">
     <div class="col-lg-8">
         <div class="card">
-            <div class="card-body p-0">
+            <div class="card-body p-0 table-responsive-wrap">
                 <table class="table table-hover mb-0">
                     <thead><tr><th>Event</th><th>Amount</th><th>Collected By</th><th>Date</th><th>Notes</th></tr></thead>
                     <tbody>

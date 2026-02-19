@@ -22,6 +22,10 @@
             color: #fff;
             font-weight: 700;
             font-size: 1.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 70vw;
         }
         .navbar-custom .nav-link {
             color: rgba(255,255,255,0.85);
@@ -66,7 +70,15 @@
         }
         footer a { color: var(--secondary); }
         .carousel-item img { height: 500px; object-fit: cover; }
-        @media (max-width: 768px) { .carousel-item img { height: 300px; } }
+        @media (max-width: 768px) {
+            .carousel-item img { height: 300px; }
+            .hero-section { padding: 2.5rem 0; }
+            .hero-section .display-4 { font-size: 1.75rem; }
+            .section-heading { font-size: 1.5rem; }
+        }
+        @media (max-width: 576px) {
+            .navbar-custom .navbar-brand { font-size: 1.1rem; max-width: 65vw; }
+        }
     </style>
     @stack('styles')
 </head>

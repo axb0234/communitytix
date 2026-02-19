@@ -2,15 +2,15 @@
 @section('page-title', 'Orders')
 
 @section('content')
-<form class="d-flex gap-2 mb-3" method="GET">
-    <input type="text" name="search" class="form-control form-control-sm" placeholder="Search name/email/order#..." value="{{ request('search') }}">
-    <select name="status" class="form-select form-select-sm" style="width:140px;" onchange="this.form.submit()">
+<form class="d-flex flex-wrap gap-2 mb-3 filter-bar" method="GET">
+    <input type="text" name="search" class="form-control form-control-sm" style="min-width:140px;max-width:220px;" placeholder="Search name/email/order#..." value="{{ request('search') }}">
+    <select name="status" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
         <option value="">All Status</option>
         @foreach(['PENDING','COMPLETED','PAID','REFUNDED','CANCELLED','FAILED'] as $s)
         <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
         @endforeach
     </select>
-    <select name="event_id" class="form-select form-select-sm" style="width:200px;" onchange="this.form.submit()">
+    <select name="event_id" class="form-select form-select-sm" style="width:180px;" onchange="this.form.submit()">
         <option value="">All Events</option>
         @foreach($events as $ev)
         <option value="{{ $ev->id }}" {{ request('event_id') == $ev->id ? 'selected' : '' }}>{{ Str::limit($ev->title, 30) }}</option>
@@ -20,7 +20,7 @@
 </form>
 
 <div class="card">
-    <div class="card-body p-0">
+    <div class="card-body p-0 table-responsive-wrap">
         <table class="table table-hover mb-0">
             <thead><tr><th>Order #</th><th>Purchaser</th><th>Event</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
             <tbody>

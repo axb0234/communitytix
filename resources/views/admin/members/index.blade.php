@@ -2,16 +2,16 @@
 @section('page-title', 'Members')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <form class="d-flex gap-2" method="GET">
-        <input type="text" name="search" class="form-control form-control-sm" placeholder="Search..." value="{{ request('search') }}">
-        <select name="member_type" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
+<div class="mb-3">
+    <form class="d-flex flex-wrap gap-2 filter-bar" method="GET">
+        <input type="text" name="search" class="form-control form-control-sm" style="min-width:120px;max-width:200px;" placeholder="Search..." value="{{ request('search') }}">
+        <select name="member_type" class="form-select form-select-sm" style="width:120px;" onchange="this.form.submit()">
             <option value="">All Types</option>
             <option value="GUEST" {{ request('member_type') === 'GUEST' ? 'selected' : '' }}>Guest</option>
             <option value="ORDINARY" {{ request('member_type') === 'ORDINARY' ? 'selected' : '' }}>Ordinary</option>
             <option value="GOVERNING" {{ request('member_type') === 'GOVERNING' ? 'selected' : '' }}>Governing</option>
         </select>
-        <select name="status" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
+        <select name="status" class="form-select form-select-sm" style="width:120px;" onchange="this.form.submit()">
             <option value="">All Status</option>
             <option value="ACTIVE" {{ request('status') === 'ACTIVE' ? 'selected' : '' }}>Active</option>
             <option value="PENDING" {{ request('status') === 'PENDING' ? 'selected' : '' }}>Pending</option>
@@ -22,7 +22,7 @@
 </div>
 
 <div class="card">
-    <div class="card-body p-0">
+    <div class="card-body p-0 table-responsive-wrap">
         <table class="table table-hover mb-0">
             <thead><tr><th>Name</th><th>Email</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>

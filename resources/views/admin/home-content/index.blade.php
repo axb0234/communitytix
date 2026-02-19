@@ -8,7 +8,7 @@
         <h5 class="mb-0"><i class="fas fa-images me-2"></i>Carousel Items</h5>
         <a href="{{ route('admin.home-content.carousel.create') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i>Add</a>
     </div>
-    <div class="card-body p-0">
+    <div class="card-body p-0 table-responsive-wrap">
         <table class="table table-hover mb-0">
             <thead><tr><th>Image</th><th>Caption</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
             <tbody>
@@ -40,7 +40,7 @@
         <h5 class="mb-0"><i class="fas fa-th-large me-2"></i>Content Blocks</h5>
         <a href="{{ route('admin.home-content.blocks.create') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i>Add</a>
     </div>
-    <div class="card-body p-0">
+    <div class="card-body p-0 table-responsive-wrap">
         <table class="table table-hover mb-0">
             <thead><tr><th>Title</th><th>Icon</th><th>Order</th><th>Active</th><th>Actions</th></tr></thead>
             <tbody>
