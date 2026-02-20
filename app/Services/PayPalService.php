@@ -66,11 +66,16 @@ class PayPalService
                 ],
                 'items' => $orderItems,
             ]],
-            'application_context' => [
-                'return_url' => $returnUrl,
-                'cancel_url' => $cancelUrl,
-                'brand_name' => app()->bound('current_tenant') ? app('current_tenant')->name : 'CommunityTix',
-                'user_action' => 'PAY_NOW',
+            'payment_source' => [
+                'paypal' => [
+                    'experience_context' => [
+                        'return_url' => $returnUrl,
+                        'cancel_url' => $cancelUrl,
+                        'brand_name' => app()->bound('current_tenant') ? app('current_tenant')->name : 'CommunityTix',
+                        'user_action' => 'PAY_NOW',
+                        'payment_method_preference' => 'UNRESTRICTED',
+                    ],
+                ],
             ],
         ];
 
