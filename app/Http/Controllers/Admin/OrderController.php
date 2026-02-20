@@ -109,17 +109,65 @@ class OrderController extends Controller
     }
 
     // RSVPs
-    public function rsvps(Request $request)
+    private function buildRsvpQuery(Request $request)
     {
         $query = Rsvp::with('event')->orderByDesc('created_at');
 
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'ilike', '%' . $request->search . '%')
+                  ->orWhere('email', 'ilike', '%' . $request->search . '%');
+            });
+        }
         if ($request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
         }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
 
+        return $query;
+    }
+
+    public function rsvps(Request $request)
+    {
+        $query = $this->buildRsvpQuery($request);
+        $totalGuests = (clone $query)->sum('guests');
         $rsvps = $query->paginate(20)->withQueryString();
         $events = Event::where('event_type', 'FREE')->orderByDesc('start_at')->get();
-        return view('admin.orders.rsvps', compact('rsvps', 'events'));
+        return view('admin.orders.rsvps', compact('rsvps', 'events', 'totalGuests'));
+    }
+
+    public function exportRsvps(Request $request): StreamedResponse
+    {
+        $rsvps = $this->buildRsvpQuery($request)->get();
+        $tenant = app('current_tenant');
+        $filename = Str::slug($tenant->name) . '-rsvps-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($rsvps) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['Name', 'Email', 'Phone', 'Guests', 'Event', 'RSVP Date']);
+
+            foreach ($rsvps as $rsvp) {
+                fputcsv($handle, [
+                    $rsvp->name,
+                    $rsvp->email,
+                    $rsvp->phone ?? '',
+                    $rsvp->guests,
+                    $rsvp->event->title ?? '-',
+                    $rsvp->created_at->format('Y-m-d H:i'),
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     // Cash Collections

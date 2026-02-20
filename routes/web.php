@@ -94,6 +94,7 @@ Route::prefix('admin')->middleware(['auth', 'tenant.exists', 'governing'])->name
 
     // RSVPs
     Route::get('/rsvps', [OrderController::class, 'rsvps'])->name('orders.rsvps');
+    Route::get('/rsvps/export', [OrderController::class, 'exportRsvps'])->name('orders.rsvps.export');
 
     // Cash Collections
     Route::get('/cash', [OrderController::class, 'cashIndex'])->name('orders.cash');
