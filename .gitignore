@@ -24,6 +24,10 @@ communitytix_key.pem
 communitytix_v1_0_3_infra_runbook_monolith_vm.md
 communitytix_v1_0_4_developer_spec_monolith_vm.md
 
+# Marketing / outreach
+resources/outreach/
+communitytix_tenant_paypal_setup_help.md
+
 # Test artifacts
 .playwright-mcp/
 *.png
