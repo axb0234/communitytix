@@ -2,24 +2,29 @@
 @section('page-title', 'Orders')
 
 @section('content')
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <form class="d-flex flex-wrap gap-2 filter-bar align-items-center" method="GET">
-        <input type="text" name="search" class="form-control form-control-sm" style="min-width:140px;max-width:220px;" placeholder="Search name/email/order#..." value="{{ request('search') }}">
-        <select name="status" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
-            <option value="">All Status</option>
-            @foreach(['PENDING','COMPLETED','PAID','REFUNDED','CANCELLED','FAILED'] as $s)
-            <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
-            @endforeach
-        </select>
-        <select name="event_id" class="form-select form-select-sm" style="width:260px;" onchange="this.form.submit()">
-            <option value="">All Events</option>
-            @foreach($events as $ev)
-            <option value="{{ $ev->id }}" {{ request('event_id') == $ev->id ? 'selected' : '' }}>{{ Str::limit($ev->title, 28) }} ({{ $ev->start_at->format('j M Y') }})</option>
-            @endforeach
-        </select>
-        <input type="date" name="date_from" class="form-control form-control-sm" style="width:140px;" value="{{ request('date_from') }}" placeholder="From" title="From date" onchange="this.form.submit()">
-        <input type="date" name="date_to" class="form-control form-control-sm" style="width:140px;" value="{{ request('date_to') }}" placeholder="To" title="To date" onchange="this.form.submit()">
-        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-search"></i></button>
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+    <form method="GET">
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+            <input type="text" name="search" class="form-control form-control-sm" style="min-width:140px;max-width:220px;" placeholder="Search name/email/order#..." value="{{ request('search') }}">
+            <select name="status" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
+                <option value="">All Status</option>
+                @foreach(['PENDING','COMPLETED','PAID','REFUNDED','CANCELLED','FAILED'] as $s)
+                <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
+                @endforeach
+            </select>
+            <select name="event_id" class="form-select form-select-sm" style="width:260px;" onchange="this.form.submit()">
+                <option value="">All Events</option>
+                @foreach($events as $ev)
+                <option value="{{ $ev->id }}" {{ request('event_id') == $ev->id ? 'selected' : '' }}>{{ Str::limit($ev->title, 28) }} ({{ $ev->start_at->format('j M Y') }})</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <input type="date" name="date_from" class="form-control form-control-sm" style="width:150px;" value="{{ request('date_from') }}" title="From date" onchange="this.form.submit()">
+            <span class="text-muted small">to</span>
+            <input type="date" name="date_to" class="form-control form-control-sm" style="width:150px;" value="{{ request('date_to') }}" title="To date" onchange="this.form.submit()">
+            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-search"></i></button>
+        </div>
     </form>
     <a href="{{ route('admin.orders.export', request()->query()) }}" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>Export</a>
 </div>
