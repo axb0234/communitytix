@@ -42,6 +42,16 @@
             <div class="col-lg-4 mt-4 mt-lg-0">
                 <div class="card shadow-sm sticky-top" style="top:80px;">
                     <div class="card-body">
+                        @if($event->start_at->isPast())
+                        {{-- Past Event --}}
+                        <div class="text-center py-3">
+                            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+                            <h5 class="fw-bold">This Event Has Ended</h5>
+                            <p class="text-muted mt-2">Thank you for your support! This event took place on {{ $event->start_at->format('j F Y') }}.</p>
+                            <p class="text-muted">Browse our upcoming events to find something you'd like to attend.</p>
+                            <a href="{{ route('events.index') }}" class="btn btn-primary w-100 mt-2"><i class="fas fa-calendar-alt me-2"></i>View Upcoming Events</a>
+                        </div>
+                        @else
                         <h4 class="fw-bold mb-3">
                             @if($event->isTicketed()) Get Tickets @else RSVP @endif
                         </h4>
@@ -131,6 +141,7 @@
                         </form>
                         @else
                         <p class="text-muted">Tickets are not yet available. Check back soon.</p>
+                        @endif
                         @endif
                         @endif
                     </div>
