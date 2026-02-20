@@ -27,6 +27,7 @@ communitytix_v1_0_4_developer_spec_monolith_vm.md
 # Marketing / outreach
 resources/outreach/
 communitytix_tenant_paypal_setup_help.md
+communitytix_platform_admin_guide.md
 
 # Test artifacts
 .playwright-mcp/
