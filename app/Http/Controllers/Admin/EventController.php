@@ -10,10 +10,11 @@ use App\Models\OrderItem;
 use App\Models\TicketType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EventController extends Controller
 {
-    public function index(Request $request)
+    private function buildEventQuery(Request $request)
     {
         $query = Event::orderByDesc('start_at')
             ->withSum(['orders as online_revenue' => fn($q) => $q->where('status', 'COMPLETED')], 'total_amount')
@@ -40,9 +41,66 @@ class EventController extends Controller
             $query->where('event_type', $request->type);
         }
 
+        return $query;
+    }
+
+    public function index(Request $request)
+    {
         $currency = app('current_tenant')->currency;
-        $events = $query->paginate(15)->withQueryString();
+        $events = $this->buildEventQuery($request)->paginate(15)->withQueryString();
         return view('admin.events.index', compact('events', 'currency'));
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $currency = app('current_tenant')->currency;
+        $events = $this->buildEventQuery($request)->get();
+        $tenant = app('current_tenant');
+        $filename = Str::slug($tenant->name) . '-events-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($events, $currency) {
+            $handle = fopen('php://output', 'w');
+
+            // BOM for Excel UTF-8 compatibility
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'Event', 'Date', 'Type', 'Status',
+                'Tickets Online', 'Tickets Cash', 'Tickets Card', 'Tickets Total',
+                "Revenue Online ($currency)", "Revenue Cash ($currency)", "Revenue Card ($currency)", "Revenue Total ($currency)",
+            ]);
+
+            foreach ($events as $event) {
+                $onlineTickets = (int) $event->online_tickets_sold;
+                $cashSales = (int) $event->cash_sales_count;
+                $cardSales = (int) $event->card_sales_count;
+                $totalTickets = $onlineTickets + $cashSales + $cardSales;
+
+                $onlineRev = (float) ($event->online_revenue ?? 0);
+                $cashRev = (float) ($event->cash_revenue ?? 0);
+                $cardRev = (float) ($event->card_revenue ?? 0);
+                $totalRev = $onlineRev + $cashRev + $cardRev;
+
+                fputcsv($handle, [
+                    $event->title,
+                    $event->start_at->format('Y-m-d'),
+                    $event->event_type,
+                    $event->status,
+                    $onlineTickets,
+                    $cashSales,
+                    $cardSales,
+                    $totalTickets,
+                    number_format($onlineRev, 2, '.', ''),
+                    number_format($cashRev, 2, '.', ''),
+                    number_format($cardRev, 2, '.', ''),
+                    number_format($totalRev, 2, '.', ''),
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function create()

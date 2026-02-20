@@ -17,7 +17,10 @@
         </select>
         <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-search"></i></button>
     </form>
-    <a href="{{ route('admin.events.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>New Event</a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('admin.events.export', request()->query()) }}" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>Export</a>
+        <a href="{{ route('admin.events.create') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>New Event</a>
+    </div>
 </div>
 
 <div class="card">

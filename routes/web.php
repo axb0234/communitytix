@@ -70,6 +70,7 @@ Route::prefix('admin')->middleware(['auth', 'tenant.exists', 'governing'])->name
 
     // Events
     Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
+    Route::get('/events/export', [AdminEventController::class, 'export'])->name('events.export');
     Route::get('/events/create', [AdminEventController::class, 'create'])->name('events.create');
     Route::post('/events', [AdminEventController::class, 'store'])->name('events.store');
     Route::get('/events/{event}/edit', [AdminEventController::class, 'edit'])->name('events.edit');
