@@ -93,7 +93,8 @@ class PayPalService
     public function captureOrder(string $orderId): array
     {
         $response = Http::withToken($this->getAccessToken())
-            ->post($this->settings->base_url . "/v2/checkout/orders/{$orderId}/capture", []);
+            ->withBody('{}', 'application/json')
+            ->post($this->settings->base_url . "/v2/checkout/orders/{$orderId}/capture");
 
         if (!$response->successful()) {
             Log::error('PayPal capture failed', ['response' => $response->body()]);

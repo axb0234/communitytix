@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\Webhook;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderConfirmation;
 use App\Models\Order;
 use App\Models\PayPalSetting;
+use App\Models\Tenant;
 use App\Services\PayPalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PayPalWebhookController extends Controller
 {
     public function handle(Request $request, string $tenantSlug)
     {
-        $tenant = \App\Models\Tenant::where('slug', $tenantSlug)->first();
+        $tenant = Tenant::where('slug', $tenantSlug)->first();
         if (!$tenant) {
             return response()->json(['error' => 'Unknown tenant'], 404);
         }
@@ -47,10 +50,10 @@ class PayPalWebhookController extends Controller
 
         switch ($event) {
             case 'CHECKOUT.ORDER.APPROVED':
-                $this->handleOrderApproved($resource, $tenant->id);
+                $this->handleOrderApproved($resource, $tenant, $paypalSetting);
                 break;
             case 'PAYMENT.CAPTURE.COMPLETED':
-                $this->handleCaptureCompleted($resource, $tenant->id);
+                $this->handleCaptureCompleted($resource, $tenant);
                 break;
             case 'PAYMENT.CAPTURE.DENIED':
             case 'PAYMENT.CAPTURE.DECLINED':
@@ -61,23 +64,44 @@ class PayPalWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    private function handleOrderApproved(array $resource, int $tenantId): void
+    private function handleOrderApproved(array $resource, Tenant $tenant, PayPalSetting $paypalSetting): void
     {
         $orderId = $resource['id'] ?? null;
         if (!$orderId) return;
 
         $order = Order::withoutGlobalScopes()
-            ->where('tenant_id', $tenantId)
+            ->where('tenant_id', $tenant->id)
             ->where('provider_order_id', $orderId)
             ->first();
 
-        if ($order && $order->status === 'PENDING') {
-            // The capture will be done by the return URL handler
-            Log::info('PayPal order approved', ['order' => $order->order_number]);
+        if (!$order || $order->status !== 'PENDING') return;
+
+        Log::info('PayPal order approved, capturing payment', ['order' => $order->order_number]);
+
+        try {
+            $paypalService = new PayPalService($paypalSetting);
+            $capture = $paypalService->captureOrder($orderId);
+
+            if (($capture['status'] ?? '') === 'COMPLETED') {
+                $captureId = $capture['purchase_units'][0]['payments']['captures'][0]['id'] ?? null;
+                $order->update([
+                    'status' => 'COMPLETED',
+                    'provider_capture_id' => $captureId,
+                    'paid_at' => now(),
+                ]);
+                Log::info('Order captured via webhook', ['order' => $order->order_number]);
+
+                $this->sendConfirmationEmail($order, $tenant);
+            }
+        } catch (\Exception $e) {
+            Log::error('Webhook capture failed', [
+                'order' => $order->order_number,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
-    private function handleCaptureCompleted(array $resource, int $tenantId): void
+    private function handleCaptureCompleted(array $resource, Tenant $tenant): void
     {
         $captureId = $resource['id'] ?? null;
 
@@ -87,14 +111,14 @@ class PayPalWebhookController extends Controller
         $order = null;
         if ($orderId) {
             $order = Order::withoutGlobalScopes()
-                ->where('tenant_id', $tenantId)
+                ->where('tenant_id', $tenant->id)
                 ->where('provider_order_id', $orderId)
                 ->first();
         }
 
         if (!$order && $captureId) {
             $order = Order::withoutGlobalScopes()
-                ->where('tenant_id', $tenantId)
+                ->where('tenant_id', $tenant->id)
                 ->where('provider_capture_id', $captureId)
                 ->first();
         }
@@ -106,6 +130,8 @@ class PayPalWebhookController extends Controller
                 'paid_at' => now(),
             ]);
             Log::info('Order completed via webhook', ['order' => $order->order_number]);
+
+            $this->sendConfirmationEmail($order, $tenant);
         }
     }
 
@@ -122,6 +148,20 @@ class PayPalWebhookController extends Controller
             if ($order) {
                 $order->update(['status' => 'FAILED']);
             }
+        }
+    }
+
+    private function sendConfirmationEmail(Order $order, Tenant $tenant): void
+    {
+        try {
+            $order->load('items.ticketType', 'event');
+            Mail::to($order->purchaser_email)->send(new OrderConfirmation($order, $tenant));
+            Log::info('Order confirmation email sent', ['order' => $order->order_number, 'email' => $order->purchaser_email]);
+        } catch (\Exception $e) {
+            Log::error('Failed to send order confirmation email', [
+                'order' => $order->order_number,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }

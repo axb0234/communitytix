@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\PublicSite;
 
 use App\Http\Controllers\Controller;
+use App\Mail\OrderConfirmation;
 use App\Models\Event;
 use App\Models\Member;
 use App\Models\Order;
@@ -11,6 +12,8 @@ use App\Models\PayPalSetting;
 use App\Models\Rsvp;
 use App\Services\PayPalService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class EventController extends Controller
 {
@@ -228,12 +231,23 @@ class EventController extends Controller
 
                 $this->ensureGuestMember($order->purchaser_name, $order->purchaser_email, $order->purchaser_phone);
 
+                // Send confirmation email
+                try {
+                    $order->load('items.ticketType', 'event');
+                    Mail::to($order->purchaser_email)->send(new OrderConfirmation($order, $tenant));
+                } catch (\Exception $mailEx) {
+                    Log::error('Failed to send order confirmation email', ['order' => $order->order_number, 'error' => $mailEx->getMessage()]);
+                }
+
                 return view('public.events.checkout-success', compact('order', 'event'));
             }
         } catch (\Exception $e) {
-            // Log but don't fail - webhook will handle it
+            Log::error('Checkout capture failed', ['order' => $order->order_number, 'error' => $e->getMessage()]);
+            // Don't fail - webhook will handle capture
         }
 
+        // Refresh order in case webhook already captured it
+        $order->refresh();
         return view('public.events.checkout-success', compact('order', 'event'));
     }
 
