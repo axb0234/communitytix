@@ -31,7 +31,7 @@
                     <tbody>
                         @foreach($order->items as $item)
                         <tr>
-                            <td>{{ $item->ticketType->name ?? '-' }}</td>
+                            <td>{{ $item->ticket_type_id ? ($item->ticketType->name ?? '-') : 'Pay What You Can' }}</td>
                             <td>{{ $item->qty }}</td>
                             <td>{{ $order->currency }} {{ number_format($item->unit_price, 2) }}</td>
                             <td>{{ $order->currency }} {{ number_format($item->qty * $item->unit_price, 2) }}</td>

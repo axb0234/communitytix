@@ -20,7 +20,10 @@
                     <td>{{ $tenant->currency }}</td>
                     <td><span class="badge bg-{{ $tenant->tenant_active ? 'success' : 'danger' }}">{{ $tenant->tenant_active ? 'Active' : 'Inactive' }}</span></td>
                     <td>{{ $tenant->sub_end_date_utc?->format('M j, Y') ?? 'N/A' }}</td>
-                    <td><a href="{{ route('platform.tenants.edit', $tenant) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a></td>
+                    <td>
+                        <a href="{{ route('platform.tenants.edit', $tenant) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
+                        <a href="{{ route('platform.tenants.purge', $tenant) }}" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></a>
+                    </td>
                 </tr>
                 @empty
                 <tr><td colspan="7" class="text-center text-muted py-3">No tenants yet.</td></tr>

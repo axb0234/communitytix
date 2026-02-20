@@ -38,6 +38,8 @@ Route::prefix('platform')->middleware(['auth', 'platform.admin'])->group(functio
     Route::post('/tenants', [PlatformController::class, 'storeTenant'])->name('platform.tenants.store');
     Route::get('/tenants/{tenant}/edit', [PlatformController::class, 'editTenant'])->name('platform.tenants.edit');
     Route::put('/tenants/{tenant}', [PlatformController::class, 'updateTenant'])->name('platform.tenants.update');
+    Route::get('/tenants/{tenant}/purge', [PlatformController::class, 'confirmPurge'])->name('platform.tenants.purge');
+    Route::delete('/tenants/{tenant}/purge', [PlatformController::class, 'executePurge'])->name('platform.tenants.purge.execute');
 });
 
 // ─── Tenant Admin ───

@@ -74,7 +74,7 @@
 
                         @elseif($event->isTicketed())
                         {{-- Ticket Selection --}}
-                        @if($event->ticketTypes->count())
+                        @if($event->ticketTypes->count() || $event->isPwyw())
                         <form method="POST" action="{{ route('events.checkout', $event->slug) }}">
                             @csrf
                             <div class="mb-3">
@@ -89,6 +89,8 @@
                                 <label class="form-label">Phone</label>
                                 <input type="text" name="phone" class="form-control" value="{{ old('phone') }}">
                             </div>
+
+                            @if($event->ticketTypes->count())
                             <hr>
                             <h6 class="fw-bold mb-3">Select Tickets</h6>
                             @foreach($event->ticketTypes as $i => $tt)
@@ -104,6 +106,27 @@
                                 </div>
                             </div>
                             @endforeach
+                            @endif
+
+                            @if($event->isPwyw())
+                            <hr>
+                            <h6 class="fw-bold mb-3"><i class="fas fa-hand-holding-heart me-1"></i>Pay What You Can</h6>
+                            <p class="small text-muted mb-2">Choose a suggested amount or enter your own.</p>
+                            <div class="d-flex gap-2 mb-3">
+                                @foreach(['pwyw_amount_1', 'pwyw_amount_2', 'pwyw_amount_3'] as $amountField)
+                                    @if($event->$amountField)
+                                    <button type="button" class="btn btn-outline-primary pwyw-btn" data-amount="{{ $event->$amountField }}">
+                                        {{ $tenant->currency }} {{ number_format($event->$amountField, 2) }}
+                                    </button>
+                                    @endif
+                                @endforeach
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">{{ $tenant->currency }}</span>
+                                <input type="number" name="pwyw_amount" id="pwyw_amount" class="form-control" step="0.01" min="0.01" placeholder="Enter amount" value="{{ old('pwyw_amount') }}">
+                            </div>
+                            @endif
+
                             <button type="submit" class="btn btn-accent w-100 mt-2"><i class="fas fa-shopping-cart me-2"></i>Proceed to Payment</button>
                         </form>
                         @else
@@ -121,3 +144,19 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.pwyw-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.pwyw-btn').forEach(b => b.classList.remove('btn-primary'));
+            document.querySelectorAll('.pwyw-btn').forEach(b => b.classList.add('btn-outline-primary'));
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary');
+            document.getElementById('pwyw_amount').value = this.dataset.amount;
+        });
+    });
+});
+</script>
+@endpush

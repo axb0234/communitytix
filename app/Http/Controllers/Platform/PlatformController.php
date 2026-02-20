@@ -8,6 +8,7 @@ use App\Models\Member;
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
+use App\Services\TenantPurgeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -102,6 +103,39 @@ class PlatformController extends Controller
         $tenant->update($data);
 
         return redirect()->route('platform.dashboard')->with('success', 'Tenant updated.');
+    }
+
+    public function confirmPurge(Tenant $tenant)
+    {
+        return view('platform.purge-confirm', compact('tenant'));
+    }
+
+    public function executePurge(Request $request, Tenant $tenant)
+    {
+        $request->validate([
+            'confirm_slug' => 'required|string',
+        ]);
+
+        if ($request->confirm_slug !== $tenant->slug) {
+            return back()->with('error', 'Slug confirmation does not match. Purge aborted.');
+        }
+
+        $purgeService = new TenantPurgeService();
+        $stats = $purgeService->purge($tenant, keepGoverningUser: true);
+
+        AuditLog::withoutGlobalScopes()->create([
+            'tenant_id' => $tenant->id,
+            'user_id' => auth()->id(),
+            'action' => 'tenant_purged',
+            'entity_type' => 'Tenant',
+            'entity_id' => $tenant->id,
+            'details' => $stats,
+            'ip_address' => $request->ip(),
+        ]);
+
+        $totalDeleted = array_sum($stats);
+        return redirect()->route('platform.dashboard')
+            ->with('success', "Tenant '{$tenant->name}' purged. {$totalDeleted} records deleted.");
     }
 
     public function loginForm()

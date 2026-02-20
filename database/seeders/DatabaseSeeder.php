@@ -72,5 +72,48 @@ class DatabaseSeeder extends Seeder
                 ]
             );
         }
+
+        // Create demo tenant: Riverside Community Centre
+        $demoTenant = Tenant::firstOrCreate(
+            ['slug' => 'demo'],
+            [
+                'name' => 'Riverside Community Centre',
+                'tagline' => 'Bringing our community together through events, culture, and connection',
+                'currency' => 'GBP',
+                'timezone' => 'Europe/London',
+                'account_type' => 'free',
+                'tenant_active' => true,
+                'contact_email' => $adminEmail,
+            ]
+        );
+
+        // Make platform admin governing for demo tenant
+        TenantUser::firstOrCreate(
+            ['tenant_id' => $demoTenant->id, 'user_id' => $platformAdmin->id],
+            ['role_in_tenant' => 'TENANT_GOVERNING']
+        );
+
+        Member::withoutGlobalScopes()->firstOrCreate(
+            ['tenant_id' => $demoTenant->id, 'email' => $adminEmail],
+            [
+                'user_id' => $platformAdmin->id,
+                'member_type' => 'GOVERNING',
+                'status' => 'ACTIVE',
+                'first_name' => 'Platform',
+                'last_name' => 'Admin',
+            ]
+        );
+
+        // Set up PayPal sandbox for demo tenant
+        if ($paypalClientId && $paypalSecret) {
+            PayPalSetting::updateOrCreate(
+                ['tenant_id' => $demoTenant->id],
+                [
+                    'mode' => 'sandbox',
+                    'client_id_enc' => $paypalClientId,
+                    'client_secret_enc' => $paypalSecret,
+                ]
+            );
+        }
     }
 }

@@ -69,6 +69,40 @@
                 </div>
             </div>
 
+            {{-- PWYC Section --}}
+            <div id="pwyw-section" class="card card-body bg-light mb-3" style="display:none;">
+                <h6 class="fw-bold mb-3"><i class="fas fa-hand-holding-heart me-1"></i>Pay What You Can (PWYC)</h6>
+                <div class="form-check mb-3">
+                    <input type="hidden" name="pwyw_enabled" value="0">
+                    <input type="checkbox" name="pwyw_enabled" value="1" class="form-check-input" id="pwyw_enabled" {{ old('pwyw_enabled', $event->pwyw_enabled ?? false) ? 'checked' : '' }}>
+                    <label class="form-check-label" for="pwyw_enabled">Enable Pay What You Can</label>
+                </div>
+                <div id="pwyw-amounts" style="display:none;">
+                    <label class="form-label">Suggested Amounts (optional)</label>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">1</span>
+                                <input type="number" name="pwyw_amount_1" class="form-control" step="0.01" min="0.01" placeholder="e.g. 5.00" value="{{ old('pwyw_amount_1', $event->pwyw_amount_1 ?? '') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">2</span>
+                                <input type="number" name="pwyw_amount_2" class="form-control" step="0.01" min="0.01" placeholder="e.g. 10.00" value="{{ old('pwyw_amount_2', $event->pwyw_amount_2 ?? '') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">3</span>
+                                <input type="number" name="pwyw_amount_3" class="form-control" step="0.01" min="0.01" placeholder="e.g. 20.00" value="{{ old('pwyw_amount_3', $event->pwyw_amount_3 ?? '') }}">
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-muted">Leave blank to let attendees enter any amount.</small>
+                </div>
+            </div>
+
             <div class="mb-3">
                 <label class="form-label">Full Description</label>
                 <textarea name="body_html" class="wysiwyg-editor">{{ old('body_html', $event->body_html ?? '') }}</textarea>
@@ -83,6 +117,31 @@
 </div>
 
 @section('wysiwyg', true)
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const eventTypeSelect = document.querySelector('select[name="event_type"]');
+    const pwywSection = document.getElementById('pwyw-section');
+    const pwywCheckbox = document.getElementById('pwyw_enabled');
+    const pwywAmounts = document.getElementById('pwyw-amounts');
+
+    function togglePwywSection() {
+        pwywSection.style.display = eventTypeSelect.value === 'TICKETED' ? 'block' : 'none';
+    }
+
+    function togglePwywAmounts() {
+        pwywAmounts.style.display = pwywCheckbox.checked ? 'block' : 'none';
+    }
+
+    eventTypeSelect.addEventListener('change', togglePwywSection);
+    pwywCheckbox.addEventListener('change', togglePwywAmounts);
+
+    togglePwywSection();
+    togglePwywAmounts();
+});
+</script>
+@endpush
 
 @if($event)
 {{-- Ticket Types --}}

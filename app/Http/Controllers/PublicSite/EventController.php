@@ -92,15 +92,17 @@ class EventController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:50',
-            'tickets' => 'required|array',
+            'tickets' => 'nullable|array',
             'tickets.*.ticket_type_id' => 'required|exists:ticket_types,id',
             'tickets.*.qty' => 'required|integer|min:0|max:20',
+            'pwyw_amount' => 'nullable|numeric|min:0.01',
         ]);
 
-        $tickets = collect($data['tickets'])->filter(fn($t) => $t['qty'] > 0);
+        $tickets = collect($data['tickets'] ?? [])->filter(fn($t) => $t['qty'] > 0);
+        $pwywAmount = $data['pwyw_amount'] ?? 0;
 
-        if ($tickets->isEmpty()) {
-            return back()->with('error', 'Please select at least one ticket.')->withInput();
+        if ($tickets->isEmpty() && !($event->isPwyw() && $pwywAmount > 0)) {
+            return back()->with('error', 'Please select at least one ticket or enter a Pay What You Can amount.')->withInput();
         }
 
         // Validate availability and calculate total
@@ -129,6 +131,23 @@ class EventController extends Controller
                 'ticket_type_id' => $ticketType->id,
                 'qty' => $ticketData['qty'],
                 'unit_price' => $ticketType->price,
+            ];
+        }
+
+        // Add PWYC item if applicable
+        if ($event->isPwyw() && $pwywAmount > 0) {
+            $totalAmount += $pwywAmount;
+
+            $itemsForPaypal[] = [
+                'name' => 'Pay What You Can',
+                'quantity' => 1,
+                'unit_price' => $pwywAmount,
+            ];
+
+            $orderItemsData[] = [
+                'ticket_type_id' => null,
+                'qty' => 1,
+                'unit_price' => $pwywAmount,
             ];
         }
 

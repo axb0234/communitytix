@@ -49,8 +49,13 @@ class EventController extends Controller
             'short_description' => 'nullable|string|max:500',
             'rsvp_capacity' => 'nullable|integer|min:1',
             'flyer_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'pwyw_enabled' => 'nullable|boolean',
+            'pwyw_amount_1' => 'nullable|numeric|min:0.01',
+            'pwyw_amount_2' => 'nullable|numeric|min:0.01',
+            'pwyw_amount_3' => 'nullable|numeric|min:0.01',
         ]);
 
+        $data['pwyw_enabled'] = $request->boolean('pwyw_enabled', false);
         $data['slug'] = Str::slug($data['title']);
         if ($data['status'] === 'published') {
             $data['published_at'] = now();
@@ -93,7 +98,13 @@ class EventController extends Controller
             'short_description' => 'nullable|string|max:500',
             'rsvp_capacity' => 'nullable|integer|min:1',
             'flyer_file' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+            'pwyw_enabled' => 'nullable|boolean',
+            'pwyw_amount_1' => 'nullable|numeric|min:0.01',
+            'pwyw_amount_2' => 'nullable|numeric|min:0.01',
+            'pwyw_amount_3' => 'nullable|numeric|min:0.01',
         ]);
+
+        $data['pwyw_enabled'] = $request->boolean('pwyw_enabled', false);
 
         if ($data['status'] === 'published' && !$event->published_at) {
             $data['published_at'] = now();
