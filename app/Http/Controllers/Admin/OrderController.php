@@ -171,17 +171,61 @@ class OrderController extends Controller
     }
 
     // Cash Collections
-    public function cashIndex(Request $request)
+    private function buildCashQuery(Request $request)
     {
         $query = CashCollection::with(['event', 'collectedBy'])->orderByDesc('collected_at');
 
+        if ($request->filled('search')) {
+            $query->whereHas('event', fn($q) => $q->where('title', 'ilike', '%' . $request->search . '%'));
+        }
         if ($request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
         }
+        if ($request->filled('date_from')) {
+            $query->whereDate('collected_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('collected_at', '<=', $request->date_to);
+        }
 
+        return $query;
+    }
+
+    public function cashIndex(Request $request)
+    {
+        $query = $this->buildCashQuery($request);
+        $totalAmount = (clone $query)->sum('amount');
         $collections = $query->paginate(20)->withQueryString();
         $events = Event::orderByDesc('start_at')->get();
-        return view('admin.orders.cash', compact('collections', 'events'));
+        return view('admin.orders.cash', compact('collections', 'events', 'totalAmount'));
+    }
+
+    public function exportCash(Request $request): StreamedResponse
+    {
+        $collections = $this->buildCashQuery($request)->get();
+        $tenant = app('current_tenant');
+        $filename = Str::slug($tenant->name) . '-cash-collections-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($collections, $tenant) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['Event', 'Amount (' . $tenant->currency . ')', 'Collected By', 'Date', 'Notes']);
+
+            foreach ($collections as $c) {
+                fputcsv($handle, [
+                    $c->event->title ?? '-',
+                    number_format($c->amount, 2, '.', ''),
+                    $c->collectedBy->name ?? '-',
+                    $c->collected_at->format('Y-m-d H:i'),
+                    $c->notes ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function storeCash(Request $request)
@@ -202,17 +246,66 @@ class OrderController extends Controller
     }
 
     // POS Payments (card at door)
-    public function posIndex(Request $request)
+    private function buildPosQuery(Request $request)
     {
         $query = PosPayment::with(['event', 'recordedBy'])->orderByDesc('recorded_at');
 
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('reference', 'ilike', '%' . $request->search . '%')
+                  ->orWhereHas('event', fn($eq) => $eq->where('title', 'ilike', '%' . $request->search . '%'));
+            });
+        }
         if ($request->filled('event_id')) {
             $query->where('event_id', $request->event_id);
         }
+        if ($request->filled('date_from')) {
+            $query->whereDate('recorded_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('recorded_at', '<=', $request->date_to);
+        }
 
+        return $query;
+    }
+
+    public function posIndex(Request $request)
+    {
+        $query = $this->buildPosQuery($request);
+        $totalAmount = (clone $query)->sum('amount');
         $payments = $query->paginate(20)->withQueryString();
         $events = Event::orderByDesc('start_at')->get();
-        return view('admin.orders.pos', compact('payments', 'events'));
+        return view('admin.orders.pos', compact('payments', 'events', 'totalAmount'));
+    }
+
+    public function exportPos(Request $request): StreamedResponse
+    {
+        $payments = $this->buildPosQuery($request)->get();
+        $tenant = app('current_tenant');
+        $filename = Str::slug($tenant->name) . '-pos-payments-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($payments, $tenant) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, ['Event', 'Amount (' . $tenant->currency . ')', 'Reference', 'Status', 'Recorded By', 'Date', 'Notes']);
+
+            foreach ($payments as $p) {
+                fputcsv($handle, [
+                    $p->event->title ?? '-',
+                    number_format($p->amount, 2, '.', ''),
+                    $p->reference ?? '',
+                    $p->status,
+                    $p->recordedBy->name ?? '-',
+                    $p->recorded_at->format('Y-m-d H:i'),
+                    $p->notes ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function storePos(Request $request)

@@ -98,10 +98,12 @@ Route::prefix('admin')->middleware(['auth', 'tenant.exists', 'governing'])->name
 
     // Cash Collections
     Route::get('/cash', [OrderController::class, 'cashIndex'])->name('orders.cash');
+    Route::get('/cash/export', [OrderController::class, 'exportCash'])->name('orders.cash.export');
     Route::post('/cash', [OrderController::class, 'storeCash'])->name('orders.cash.store');
 
     // POS Payments
     Route::get('/pos', [OrderController::class, 'posIndex'])->name('orders.pos');
+    Route::get('/pos/export', [OrderController::class, 'exportPos'])->name('orders.pos.export');
     Route::post('/pos', [OrderController::class, 'storePos'])->name('orders.pos.store');
 
     // Members
