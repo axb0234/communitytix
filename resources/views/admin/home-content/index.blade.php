@@ -14,7 +14,7 @@
             <tbody>
                 @forelse($carouselItems as $item)
                 <tr>
-                    <td><img src="{{ route('storage.file', $item->image_path) }}" style="height:50px;width:80px;object-fit:cover;" class="rounded"></td>
+                    <td><img src="{{ route('storage.local', $item->image_path) }}" style="height:50px;width:80px;object-fit:cover;" class="rounded"></td>
                     <td>{{ $item->caption ?? '-' }}</td>
                     <td>{{ $item->sort_order }}</td>
                     <td><span class="badge bg-{{ $item->active ? 'success' : 'secondary' }}">{{ $item->active ? 'Yes' : 'No' }}</span></td>

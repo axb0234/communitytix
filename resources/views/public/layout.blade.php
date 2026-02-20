@@ -88,7 +88,7 @@
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
                 @if($tenant->logo_path ?? false)
-                    <img src="{{ route('storage.file', $tenant->logo_path) }}" alt="{{ $tenant->name }}" height="40" class="me-2">
+                    <img src="{{ route('storage.local', $tenant->logo_path) }}" alt="{{ $tenant->name }}" height="40" class="me-2">
                 @endif
                 {{ $tenant->name ?? 'CommunityTix' }}
             </a>

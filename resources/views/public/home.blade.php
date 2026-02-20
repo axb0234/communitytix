@@ -13,7 +13,7 @@
     <div class="carousel-inner">
         @foreach($carouselItems as $i => $item)
             <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
-                <img src="{{ route('storage.file', $item->image_path) }}" class="d-block w-100" alt="{{ $item->caption }}">
+                <img src="{{ route('storage.local', $item->image_path) }}" class="d-block w-100" alt="{{ $item->caption }}">
                 @if($item->caption)
                 <div class="carousel-caption d-none d-md-block">
                     <h2 class="fw-bold">{{ $item->caption }}</h2>
@@ -70,7 +70,7 @@
             <div class="col-lg-8">
                 <div class="card card-hover border-0 shadow">
                     @if($upcomingEvent->flyer_path)
-                        <img src="{{ route('storage.file', $upcomingEvent->flyer_path) }}" class="card-img-top" alt="{{ $upcomingEvent->title }}" style="max-height:400px;object-fit:cover;">
+                        <img src="{{ route('storage.local', $upcomingEvent->flyer_path) }}" class="card-img-top" alt="{{ $upcomingEvent->title }}" style="max-height:400px;object-fit:cover;">
                     @endif
                     <div class="card-body p-4">
                         <h3 class="card-title fw-bold">{{ $upcomingEvent->title }}</h3>
@@ -102,7 +102,7 @@
             <div class="col-sm-6 col-md-4">
                 <div class="card card-hover h-100">
                     @if($post->featured_image)
-                        <img src="{{ route('storage.file', $post->featured_image) }}" class="card-img-top" alt="{{ $post->title }}" style="height:200px;object-fit:cover;">
+                        <img src="{{ route('storage.local', $post->featured_image) }}" class="card-img-top" alt="{{ $post->title }}" style="height:200px;object-fit:cover;">
                     @endif
                     <div class="card-body">
                         <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ $post->published_at->format('M j, Y') }}</small>

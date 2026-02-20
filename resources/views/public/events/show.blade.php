@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-lg-8">
                 @if($event->flyer_path)
-                    <img src="{{ route('storage.file', $event->flyer_path) }}" class="img-fluid rounded mb-4" alt="{{ $event->title }}">
+                    <img src="{{ route('storage.local', $event->flyer_path) }}" class="img-fluid rounded mb-4" alt="{{ $event->title }}">
                 @endif
 
                 <h1 class="fw-bold">{{ $event->title }}</h1>
@@ -31,7 +31,7 @@
                     <div class="row g-2">
                         @foreach($event->images as $img)
                         <div class="col-6 col-md-4">
-                            <img src="{{ route('storage.file', $img->image_path) }}" class="img-fluid rounded" alt="{{ $img->caption }}" style="height:200px;object-fit:cover;width:100%;">
+                            <img src="{{ route('storage.local', $img->image_path) }}" class="img-fluid rounded" alt="{{ $img->caption }}" style="height:200px;object-fit:cover;width:100%;">
                         </div>
                         @endforeach
                     </div>

@@ -138,11 +138,4 @@ Route::middleware(['tenant.exists'])->group(function () {
     Route::post('/join', [MemberController::class, 'signup'])->name('members.signup.store');
 });
 
-// Uploads access
-Route::get('/storage/{path}', function (string $path) {
-    $fullPath = storage_path("app/public/{$path}");
-    if (!file_exists($fullPath)) {
-        abort(404);
-    }
-    return response()->file($fullPath);
-})->where('path', '.*')->name('storage.file');
+// Note: File serving handled by Laravel's built-in storage.local route (filesystem 'serve' => true)

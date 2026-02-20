@@ -18,7 +18,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card card-hover h-100">
                     @if($event->flyer_path)
-                        <img src="{{ route('storage.file', $event->flyer_path) }}" class="card-img-top" alt="{{ $event->title }}" style="height:220px;object-fit:cover;">
+                        <img src="{{ route('storage.local', $event->flyer_path) }}" class="card-img-top" alt="{{ $event->title }}" style="height:220px;object-fit:cover;">
                     @endif
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">

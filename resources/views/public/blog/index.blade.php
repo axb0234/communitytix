@@ -17,7 +17,7 @@
             <div class="col-md-4">
                 <div class="card card-hover h-100">
                     @if($post->featured_image)
-                        <img src="{{ route('storage.file', $post->featured_image) }}" class="card-img-top" alt="{{ $post->title }}" style="height:200px;object-fit:cover;">
+                        <img src="{{ route('storage.local', $post->featured_image) }}" class="card-img-top" alt="{{ $post->title }}" style="height:200px;object-fit:cover;">
                     @endif
                     <div class="card-body">
                         <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ $post->published_at->format('M j, Y') }}</small>

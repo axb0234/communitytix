@@ -11,7 +11,7 @@
             <div class="mb-3">
                 <label class="form-label">Image {{ $item ? '' : '*' }}</label>
                 <input type="file" name="image" class="form-control" accept="image/*" {{ $item ? '' : 'required' }}>
-                @if($item)<img src="{{ route('storage.file', $item->image_path) }}" class="mt-2 img-thumbnail" style="max-height:100px;">@endif
+                @if($item)<img src="{{ route('storage.local', $item->image_path) }}" class="mt-2 img-thumbnail" style="max-height:100px;">@endif
             </div>
             <div class="mb-3">
                 <label class="form-label">Caption</label>

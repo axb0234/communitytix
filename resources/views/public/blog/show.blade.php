@@ -7,7 +7,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 @if($post->featured_image)
-                    <img src="{{ route('storage.file', $post->featured_image) }}" class="img-fluid rounded mb-4" alt="{{ $post->title }}">
+                    <img src="{{ route('storage.local', $post->featured_image) }}" class="img-fluid rounded mb-4" alt="{{ $post->title }}">
                 @endif
                 <h1 class="fw-bold mb-3">{{ $post->title }}</h1>
                 <div class="text-muted mb-4">

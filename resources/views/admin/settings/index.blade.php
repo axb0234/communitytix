@@ -38,7 +38,7 @@
                     <div class="mb-3">
                         <label class="form-label">Logo</label>
                         <input type="file" name="logo_file" class="form-control" accept="image/*">
-                        @if($tenant->logo_path)<img src="{{ route('storage.file', $tenant->logo_path) }}" class="mt-2" style="max-height:60px;">@endif
+                        @if($tenant->logo_path)<img src="{{ route('storage.local', $tenant->logo_path) }}" class="mt-2" style="max-height:60px;">@endif
                     </div>
                     <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Settings</button>
                 </form>

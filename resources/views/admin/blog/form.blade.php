@@ -30,7 +30,7 @@
                     <label class="form-label">Featured Image</label>
                     <input type="file" name="featured_image_file" class="form-control" accept="image/*">
                     @if($post?->featured_image)
-                        <img src="{{ route('storage.file', $post->featured_image) }}" class="mt-2 img-thumbnail" style="max-height:100px;">
+                        <img src="{{ route('storage.local', $post->featured_image) }}" class="mt-2 img-thumbnail" style="max-height:100px;">
                     @endif
                 </div>
                 <div class="col-md-6 mb-3">

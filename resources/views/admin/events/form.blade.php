@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="row g-2 mb-3">
             @foreach($event->images as $img)
             <div class="col-4 col-md-3 position-relative">
-                <img src="{{ route('storage.file', $img->image_path) }}" class="img-thumbnail" style="height:120px;object-fit:cover;width:100%;">
+                <img src="{{ route('storage.local', $img->image_path) }}" class="img-thumbnail" style="height:120px;object-fit:cover;width:100%;">
                 <form method="POST" action="{{ route('admin.events.images.destroy', [$event, $img]) }}" class="position-absolute top-0 end-0">
                     @csrf @method('DELETE')
                     <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
