@@ -32,11 +32,15 @@
                     <th rowspan="2" class="align-bottom">Date</th>
                     <th rowspan="2" class="align-bottom text-center">Type</th>
                     <th rowspan="2" class="align-bottom text-center">Status</th>
+                    <th colspan="3" class="text-center border-start small text-uppercase text-muted">Guests</th>
                     <th colspan="4" class="text-center border-start small text-uppercase text-muted">Tickets Sold</th>
                     <th colspan="4" class="text-center border-start small text-uppercase text-muted">Revenue ({{ $currency }})</th>
                     <th rowspan="2" class="align-bottom border-start"></th>
                 </tr>
                 <tr class="table-light">
+                    <th class="text-center border-start small">RSVP</th>
+                    <th class="text-center small">Ticketed</th>
+                    <th class="text-center small fw-bold">Total</th>
                     <th class="text-center border-start small">Online</th>
                     <th class="text-center small">Cash</th>
                     <th class="text-center small">Card</th>
@@ -50,10 +54,12 @@
             <tbody>
                 @forelse($events as $event)
                 @php
+                    $rsvpGuests = (int) ($event->rsvp_guests ?? 0);
                     $onlineTickets = (int) $event->online_tickets_sold;
                     $cashSales = (int) $event->cash_sales_count;
                     $cardSales = (int) $event->card_sales_count;
-                    $totalTickets = $onlineTickets + $cashSales + $cardSales;
+                    $ticketedGuests = $onlineTickets + $cashSales + $cardSales;
+                    $totalGuests = $rsvpGuests + $ticketedGuests;
 
                     $onlineRev = (float) ($event->online_revenue ?? 0);
                     $cashRev = (float) ($event->cash_revenue ?? 0);
@@ -65,10 +71,13 @@
                     <td>{{ $event->start_at->format('M j, Y') }}</td>
                     <td class="text-center"><span class="badge bg-{{ $event->event_type === 'TICKETED' ? 'warning text-dark' : 'success' }}">{{ $event->event_type }}</span></td>
                     <td class="text-center"><span class="badge bg-{{ $event->status === 'published' ? 'success' : 'secondary' }}">{{ $event->status }}</span></td>
+                    <td class="text-center border-start">{{ $rsvpGuests }}</td>
+                    <td class="text-center">{{ $ticketedGuests }}</td>
+                    <td class="text-center fw-bold">{{ $totalGuests }}</td>
                     <td class="text-center border-start">{{ $onlineTickets }}</td>
                     <td class="text-center">{{ $cashSales }}</td>
                     <td class="text-center">{{ $cardSales }}</td>
-                    <td class="text-center fw-bold">{{ $totalTickets }}</td>
+                    <td class="text-center fw-bold">{{ $ticketedGuests }}</td>
                     <td class="text-center border-start">{{ number_format($onlineRev, 2) }}</td>
                     <td class="text-center">{{ number_format($cashRev, 2) }}</td>
                     <td class="text-center">{{ number_format($cardRev, 2) }}</td>
@@ -82,7 +91,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="13" class="text-center text-muted py-3">No events yet.</td></tr>
+                <tr><td colspan="16" class="text-center text-muted py-3">No events yet.</td></tr>
                 @endforelse
             </tbody>
         </table>

@@ -20,6 +20,7 @@ class EventController extends Controller
             ->withSum(['orders as online_revenue' => fn($q) => $q->where('status', 'COMPLETED')], 'total_amount')
             ->withSum('cashCollections as cash_revenue', 'amount')
             ->withSum('posPayments as card_revenue', 'amount')
+            ->withSum('rsvps as rsvp_guests', 'guests')
             ->withCount([
                 'cashCollections as cash_sales_count',
                 'posPayments as card_sales_count',
@@ -66,15 +67,18 @@ class EventController extends Controller
 
             fputcsv($handle, [
                 'Event', 'Date', 'Type', 'Status',
+                'Guests RSVP', 'Guests Ticketed', 'Guests Total',
                 'Tickets Online', 'Tickets Cash', 'Tickets Card', 'Tickets Total',
                 "Revenue Online ($currency)", "Revenue Cash ($currency)", "Revenue Card ($currency)", "Revenue Total ($currency)",
             ]);
 
             foreach ($events as $event) {
+                $rsvpGuests = (int) ($event->rsvp_guests ?? 0);
                 $onlineTickets = (int) $event->online_tickets_sold;
                 $cashSales = (int) $event->cash_sales_count;
                 $cardSales = (int) $event->card_sales_count;
-                $totalTickets = $onlineTickets + $cashSales + $cardSales;
+                $ticketedGuests = $onlineTickets + $cashSales + $cardSales;
+                $totalGuests = $rsvpGuests + $ticketedGuests;
 
                 $onlineRev = (float) ($event->online_revenue ?? 0);
                 $cashRev = (float) ($event->cash_revenue ?? 0);
@@ -86,10 +90,13 @@ class EventController extends Controller
                     $event->start_at->format('Y-m-d'),
                     $event->event_type,
                     $event->status,
+                    $rsvpGuests,
+                    $ticketedGuests,
+                    $totalGuests,
                     $onlineTickets,
                     $cashSales,
                     $cardSales,
-                    $totalTickets,
+                    $ticketedGuests,
                     number_format($onlineRev, 2, '.', ''),
                     number_format($cashRev, 2, '.', ''),
                     number_format($cardRev, 2, '.', ''),
