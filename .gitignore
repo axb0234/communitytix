@@ -27,3 +27,4 @@ communitytix_v1_0_4_developer_spec_monolith_vm.md
 # Test artifacts
 .playwright-mcp/
 *.png
+!public/help-images/*.png

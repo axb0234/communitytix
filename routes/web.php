@@ -120,6 +120,9 @@ Route::prefix('admin')->middleware(['auth', 'tenant.exists', 'governing'])->name
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/tenant', [SettingsController::class, 'updateTenant'])->name('settings.tenant.update');
     Route::put('/settings/paypal', [SettingsController::class, 'updatePaypal'])->name('settings.paypal.update');
+
+    // Help
+    Route::get('/help', fn() => view('admin.help', ['tenant' => app('current_tenant')]))->name('help');
 });
 
 // ─── Public Tenant Routes ───

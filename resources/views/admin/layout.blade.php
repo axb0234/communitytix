@@ -143,6 +143,9 @@
             </a>
 
             <div class="nav-section mt-3"></div>
+            <a href="{{ route('admin.help') }}" class="nav-link {{ request()->routeIs('admin.help') ? 'active' : '' }}">
+                <i class="fas fa-life-ring"></i> Help & Guide
+            </a>
             <a href="{{ route('home') }}" class="nav-link" target="_blank">
                 <i class="fas fa-external-link-alt"></i> View Site
             </a>
