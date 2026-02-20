@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Member;
-use App\Models\PayPalSetting;
 use App\Models\Tenant;
 use App\Models\TenantUser;
 use App\Models\User;
@@ -58,20 +57,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Set up PayPal sandbox for Moitree
-        $paypalClientId = env('PAYPAL_CLIENT_ID');
-        $paypalSecret = env('PAYPAL_SECRET_KEY');
-
-        if ($paypalClientId && $paypalSecret) {
-            PayPalSetting::updateOrCreate(
-                ['tenant_id' => $tenant->id],
-                [
-                    'mode' => 'sandbox',
-                    'client_id_enc' => $paypalClientId,
-                    'client_secret_enc' => $paypalSecret,
-                ]
-            );
-        }
+        // Note: PayPal/Zettle credentials are tenant-specific and must be
+        // configured by each tenant admin via Admin > Settings. They are NOT
+        // seeded from env vars.
 
         // Create demo tenant: Riverside Community Centre
         $demoTenant = Tenant::firstOrCreate(
@@ -104,16 +92,5 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Set up PayPal sandbox for demo tenant
-        if ($paypalClientId && $paypalSecret) {
-            PayPalSetting::updateOrCreate(
-                ['tenant_id' => $demoTenant->id],
-                [
-                    'mode' => 'sandbox',
-                    'client_id_enc' => $paypalClientId,
-                    'client_secret_enc' => $paypalSecret,
-                ]
-            );
-        }
     }
 }
