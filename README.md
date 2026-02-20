@@ -269,6 +269,16 @@ php artisan demo:seed --purge-first
 
 ---
 
+## Get CommunityTix for Your Organisation
+
+If you run a community group, cultural association, club, or non-profit and would like your own CommunityTix site, get in touch:
+
+**Anirban Bhaumik** — [anirban@softnext.solutions](mailto:anirban@softnext.solutions)
+
+We'll set up a fully managed tenant for your organisation with your own subdomain, branding, and PayPal integration — so you can start managing events, selling tickets, and growing your membership straight away.
+
+---
+
 ## License
 
 All rights reserved.
