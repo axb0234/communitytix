@@ -187,8 +187,10 @@ class EventController extends Controller
 
             $order->update(['provider_order_id' => $paypalOrder['id']]);
 
-            // Find approval URL
-            $approvalUrl = collect($paypalOrder['links'])->firstWhere('rel', 'approve')['href'] ?? null;
+            // Find approval URL (PayPal returns 'payer-action' with payment_source, 'approve' with application_context)
+            $approvalUrl = collect($paypalOrder['links'])->firstWhere('rel', 'payer-action')['href']
+                ?? collect($paypalOrder['links'])->firstWhere('rel', 'approve')['href']
+                ?? null;
 
             if (!$approvalUrl) {
                 throw new \RuntimeException('No approval URL from PayPal');
