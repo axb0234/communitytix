@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Event;
 use App\Models\EventImage;
+use App\Models\OrderItem;
 use App\Models\TicketType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -14,7 +15,20 @@ class EventController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Event::orderByDesc('start_at');
+        $query = Event::orderByDesc('start_at')
+            ->withSum(['orders as online_revenue' => fn($q) => $q->where('status', 'COMPLETED')], 'total_amount')
+            ->withSum('cashCollections as cash_revenue', 'amount')
+            ->withSum('posPayments as card_revenue', 'amount')
+            ->withCount([
+                'cashCollections as cash_sales_count',
+                'posPayments as card_sales_count',
+            ])
+            ->addSelect([
+                'online_tickets_sold' => OrderItem::selectRaw('COALESCE(SUM(order_items.qty), 0)')
+                    ->join('orders', 'orders.id', '=', 'order_items.order_id')
+                    ->whereColumn('orders.event_id', 'events.id')
+                    ->where('orders.status', 'COMPLETED'),
+            ]);
 
         if ($request->filled('search')) {
             $query->where('title', 'ilike', '%' . $request->search . '%');
@@ -26,8 +40,9 @@ class EventController extends Controller
             $query->where('event_type', $request->type);
         }
 
+        $currency = app('current_tenant')->currency;
         $events = $query->paginate(15)->withQueryString();
-        return view('admin.events.index', compact('events'));
+        return view('admin.events.index', compact('events', 'currency'));
     }
 
     public function create()

@@ -22,16 +22,55 @@
 
 <div class="card">
     <div class="card-body p-0 table-responsive-wrap">
-        <table class="table table-hover mb-0">
-            <thead><tr><th>Event</th><th>Date</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+        <table class="table table-hover mb-0 align-middle" style="white-space:nowrap;">
+            <thead>
+                <tr class="table-light">
+                    <th rowspan="2" class="align-bottom">Event</th>
+                    <th rowspan="2" class="align-bottom">Date</th>
+                    <th rowspan="2" class="align-bottom text-center">Type</th>
+                    <th rowspan="2" class="align-bottom text-center">Status</th>
+                    <th colspan="4" class="text-center border-start small text-uppercase text-muted">Tickets Sold</th>
+                    <th colspan="4" class="text-center border-start small text-uppercase text-muted">Revenue ({{ $currency }})</th>
+                    <th rowspan="2" class="align-bottom border-start"></th>
+                </tr>
+                <tr class="table-light">
+                    <th class="text-center border-start small">Online</th>
+                    <th class="text-center small">Cash</th>
+                    <th class="text-center small">Card</th>
+                    <th class="text-center small fw-bold">Total</th>
+                    <th class="text-center border-start small">Online</th>
+                    <th class="text-center small">Cash</th>
+                    <th class="text-center small">Card</th>
+                    <th class="text-center small fw-bold">Total</th>
+                </tr>
+            </thead>
             <tbody>
                 @forelse($events as $event)
+                @php
+                    $onlineTickets = (int) $event->online_tickets_sold;
+                    $cashSales = (int) $event->cash_sales_count;
+                    $cardSales = (int) $event->card_sales_count;
+                    $totalTickets = $onlineTickets + $cashSales + $cardSales;
+
+                    $onlineRev = (float) ($event->online_revenue ?? 0);
+                    $cashRev = (float) ($event->cash_revenue ?? 0);
+                    $cardRev = (float) ($event->card_revenue ?? 0);
+                    $totalRev = $onlineRev + $cashRev + $cardRev;
+                @endphp
                 <tr>
-                    <td><a href="{{ route('admin.events.edit', $event) }}">{{ $event->title }}</a></td>
-                    <td>{{ $event->start_at->format('M j, Y g:i A') }}</td>
-                    <td><span class="badge bg-{{ $event->event_type === 'TICKETED' ? 'warning text-dark' : 'success' }}">{{ $event->event_type }}</span></td>
-                    <td><span class="badge bg-{{ $event->status === 'published' ? 'success' : 'secondary' }}">{{ $event->status }}</span></td>
-                    <td>
+                    <td><a href="{{ route('admin.events.edit', $event) }}">{{ Str::limit($event->title, 35) }}</a></td>
+                    <td>{{ $event->start_at->format('M j, Y') }}</td>
+                    <td class="text-center"><span class="badge bg-{{ $event->event_type === 'TICKETED' ? 'warning text-dark' : 'success' }}">{{ $event->event_type }}</span></td>
+                    <td class="text-center"><span class="badge bg-{{ $event->status === 'published' ? 'success' : 'secondary' }}">{{ $event->status }}</span></td>
+                    <td class="text-center border-start">{{ $onlineTickets }}</td>
+                    <td class="text-center">{{ $cashSales }}</td>
+                    <td class="text-center">{{ $cardSales }}</td>
+                    <td class="text-center fw-bold">{{ $totalTickets }}</td>
+                    <td class="text-center border-start">{{ number_format($onlineRev, 2) }}</td>
+                    <td class="text-center">{{ number_format($cashRev, 2) }}</td>
+                    <td class="text-center">{{ number_format($cardRev, 2) }}</td>
+                    <td class="text-center fw-bold">{{ number_format($totalRev, 2) }}</td>
+                    <td class="border-start">
                         <a href="{{ route('admin.events.edit', $event) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></a>
                         <form method="POST" action="{{ route('admin.events.destroy', $event) }}" class="d-inline" onsubmit="return confirm('Delete this event?')">
                             @csrf @method('DELETE')
@@ -40,7 +79,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="5" class="text-center text-muted py-3">No events yet.</td></tr>
+                <tr><td colspan="13" class="text-center text-muted py-3">No events yet.</td></tr>
                 @endforelse
             </tbody>
         </table>
