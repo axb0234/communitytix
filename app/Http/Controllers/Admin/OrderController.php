@@ -10,10 +10,12 @@ use App\Models\Order;
 use App\Models\PosPayment;
 use App\Models\Rsvp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderController extends Controller
 {
-    public function index(Request $request)
+    private function buildOrderQuery(Request $request)
     {
         $query = Order::with(['event'])->orderByDesc('created_at');
 
@@ -31,9 +33,51 @@ class OrderController extends Controller
             $query->where('event_id', $request->event_id);
         }
 
-        $orders = $query->paginate(20)->withQueryString();
+        return $query;
+    }
+
+    public function index(Request $request)
+    {
+        $orders = $this->buildOrderQuery($request)->paginate(20)->withQueryString();
         $events = Event::orderByDesc('start_at')->get();
         return view('admin.orders.index', compact('orders', 'events'));
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $orders = $this->buildOrderQuery($request)->get();
+        $tenant = app('current_tenant');
+        $filename = Str::slug($tenant->name) . '-orders-' . now()->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($orders, $tenant) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'Order #', 'Purchaser Name', 'Email', 'Phone',
+                'Event', 'Amount (' . $tenant->currency . ')', 'Payment Method',
+                'Status', 'Order Date', 'Paid At',
+            ]);
+
+            foreach ($orders as $order) {
+                fputcsv($handle, [
+                    $order->order_number,
+                    $order->purchaser_name,
+                    $order->purchaser_email,
+                    $order->purchaser_phone ?? '',
+                    $order->event->title ?? '-',
+                    number_format($order->total_amount, 2, '.', ''),
+                    $order->payment_method,
+                    $order->status,
+                    $order->created_at->format('Y-m-d H:i'),
+                    $order->paid_at?->format('Y-m-d H:i') ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function show(Order $order)

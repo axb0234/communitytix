@@ -2,22 +2,25 @@
 @section('page-title', 'Orders')
 
 @section('content')
-<form class="d-flex flex-wrap gap-2 mb-3 filter-bar" method="GET">
-    <input type="text" name="search" class="form-control form-control-sm" style="min-width:140px;max-width:220px;" placeholder="Search name/email/order#..." value="{{ request('search') }}">
-    <select name="status" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
-        <option value="">All Status</option>
-        @foreach(['PENDING','COMPLETED','PAID','REFUNDED','CANCELLED','FAILED'] as $s)
-        <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
-        @endforeach
-    </select>
-    <select name="event_id" class="form-select form-select-sm" style="width:180px;" onchange="this.form.submit()">
-        <option value="">All Events</option>
-        @foreach($events as $ev)
-        <option value="{{ $ev->id }}" {{ request('event_id') == $ev->id ? 'selected' : '' }}>{{ Str::limit($ev->title, 30) }}</option>
-        @endforeach
-    </select>
-    <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-search"></i></button>
-</form>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <form class="d-flex flex-wrap gap-2 filter-bar" method="GET">
+        <input type="text" name="search" class="form-control form-control-sm" style="min-width:140px;max-width:220px;" placeholder="Search name/email/order#..." value="{{ request('search') }}">
+        <select name="status" class="form-select form-select-sm" style="width:130px;" onchange="this.form.submit()">
+            <option value="">All Status</option>
+            @foreach(['PENDING','COMPLETED','PAID','REFUNDED','CANCELLED','FAILED'] as $s)
+            <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
+            @endforeach
+        </select>
+        <select name="event_id" class="form-select form-select-sm" style="width:180px;" onchange="this.form.submit()">
+            <option value="">All Events</option>
+            @foreach($events as $ev)
+            <option value="{{ $ev->id }}" {{ request('event_id') == $ev->id ? 'selected' : '' }}>{{ Str::limit($ev->title, 30) }}</option>
+            @endforeach
+        </select>
+        <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-search"></i></button>
+    </form>
+    <a href="{{ route('admin.orders.export', request()->query()) }}" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>Export</a>
+</div>
 
 <div class="card">
     <div class="card-body p-0 table-responsive-wrap">

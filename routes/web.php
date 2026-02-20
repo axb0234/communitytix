@@ -88,6 +88,7 @@ Route::prefix('admin')->middleware(['auth', 'tenant.exists', 'governing'])->name
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/refund', [OrderController::class, 'markRefunded'])->name('orders.refund');
 
