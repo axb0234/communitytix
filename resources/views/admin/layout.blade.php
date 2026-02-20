@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') - {{ $tenant->name ?? 'CommunityTix' }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
         :root { --sidebar-width: 260px; --primary-dark: #343a40; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; }
+        body { font-family: 'Noto Sans', 'Noto Sans Bengali', 'Noto Sans Devanagari', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', sans-serif; background: #f4f6f9; }
         .sidebar {
             position: fixed;
             top: 0; left: 0; bottom: 0;
@@ -88,6 +91,7 @@
     <style>
         .note-editor.note-frame { border: 1px solid #dee2e6; border-radius: 0.375rem; }
         .note-editor .note-toolbar { background: #f8f9fa; border-bottom: 1px solid #dee2e6; border-radius: 0.375rem 0.375rem 0 0; }
+        .note-editable { font-family: 'Noto Sans', 'Noto Sans Bengali', 'Noto Sans Devanagari', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans KR', sans-serif; }
     </style>
     @endif
 </head>
