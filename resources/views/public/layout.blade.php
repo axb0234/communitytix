@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $tenant->name ?? 'CommunityTix')</title>
+
+    {{-- Default SEO & Open Graph --}}
+    <meta name="description" content="{{ $tenant->tagline ?? ($tenant->name . ' — powered by CommunityTix') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('title', $tenant->name ?? 'CommunityTix')">
+    <meta property="og:description" content="{{ $tenant->tagline ?? ($tenant->name . ' — powered by CommunityTix') }}">
+    @if($tenant->logo_path ?? false)
+        <meta property="og:image" content="{{ url(route('storage.local', $tenant->logo_path)) }}">
+    @endif
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', $tenant->name ?? 'CommunityTix')">
+    <meta name="twitter:description" content="{{ $tenant->tagline ?? ($tenant->name . ' — powered by CommunityTix') }}">
+    @if($tenant->logo_path ?? false)
+        <meta name="twitter:image" content="{{ url(route('storage.local', $tenant->logo_path)) }}">
+    @endif
+    @stack('meta')
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">

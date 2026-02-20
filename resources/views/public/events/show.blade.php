@@ -1,6 +1,18 @@
 @extends('public.layout')
 @section('title', $event->title . ' - ' . $tenant->name)
 
+@push('meta')
+    <meta property="og:type" content="event">
+    <meta property="og:title" content="{{ $event->title }}">
+    <meta property="og:description" content="{{ $event->short_description ?? Str::limit(strip_tags($event->body_html), 160) }}">
+    @if($event->flyer_path)
+        <meta property="og:image" content="{{ url(route('storage.local', $event->flyer_path)) }}">
+        <meta name="twitter:image" content="{{ url(route('storage.local', $event->flyer_path)) }}">
+    @endif
+    <meta name="twitter:title" content="{{ $event->title }}">
+    <meta name="twitter:description" content="{{ $event->short_description ?? Str::limit(strip_tags($event->body_html), 160) }}">
+@endpush
+
 @section('content')
 <section class="py-5">
     <div class="container">

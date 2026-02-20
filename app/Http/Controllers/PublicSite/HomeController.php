@@ -12,6 +12,10 @@ class HomeController extends Controller
 {
     public function index()
     {
+        if (!app()->bound('current_tenant')) {
+            return view('landing');
+        }
+
         $tenant = app('current_tenant');
         $carouselItems = HomeCarouselItem::where('active', true)->orderBy('sort_order')->get();
         $contentBlocks = HomeContentBlock::where('active', true)->orderBy('sort_order')->get();

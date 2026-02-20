@@ -1,6 +1,18 @@
 @extends('public.layout')
 @section('title', $post->title . ' - ' . $tenant->name)
 
+@push('meta')
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{ $post->title }}">
+    <meta property="og:description" content="{{ $post->excerpt ?? Str::limit(strip_tags($post->body_html), 160) }}">
+    @if($post->featured_image)
+        <meta property="og:image" content="{{ url(route('storage.local', $post->featured_image)) }}">
+        <meta name="twitter:image" content="{{ url(route('storage.local', $post->featured_image)) }}">
+    @endif
+    <meta name="twitter:title" content="{{ $post->title }}">
+    <meta name="twitter:description" content="{{ $post->excerpt ?? Str::limit(strip_tags($post->body_html), 160) }}">
+@endpush
+
 @section('content')
 <section class="py-5">
     <div class="container">

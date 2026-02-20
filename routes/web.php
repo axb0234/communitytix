@@ -125,10 +125,11 @@ Route::prefix('admin')->middleware(['auth', 'tenant.exists', 'governing'])->name
     Route::get('/help', fn() => view('admin.help', ['tenant' => app('current_tenant')]))->name('help');
 });
 
+// ─── Home (serves landing page or tenant homepage) ───
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
 // ─── Public Tenant Routes ───
 Route::middleware(['tenant.exists'])->group(function () {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
-
     // Blog
     Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
     Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
